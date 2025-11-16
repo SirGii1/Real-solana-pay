@@ -7,6 +7,7 @@
     <title>Sol Fast Transaction</title>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     <script src="https://unpkg.com/@solana/spl-token@latest/lib/index.iife.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -16,42 +17,67 @@
 
 ```
     body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #0a0e27;
         min-height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 20px;
+        color: #e4e4e7;
     }
 
     .container {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        max-width: 500px;
+        background: linear-gradient(135deg, #1a1d35 0%, #0f1123 100%);
+        max-width: 600px;
         width: 100%;
         border-radius: 24px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.05);
         overflow: hidden;
     }
 
     .header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 32px;
-        text-align: center;
-        color: white;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        padding: 40px 32px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 1;
     }
 
     .header h1 {
-        font-size: 28px;
+        font-size: 32px;
         font-weight: 700;
         margin-bottom: 8px;
         letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
     }
 
     .header p {
-        font-size: 14px;
-        opacity: 0.9;
+        font-size: 15px;
+        opacity: 0.95;
     }
 
     .content {
@@ -59,7 +85,8 @@
     }
 
     .wallet-info {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        background: rgba(99, 102, 241, 0.08);
+        border: 1px solid rgba(99, 102, 241, 0.2);
         padding: 20px;
         border-radius: 16px;
         margin-bottom: 24px;
@@ -67,50 +94,162 @@
 
     .wallet-info p {
         font-size: 13px;
-        color: #333;
+        color: #a1a1aa;
         margin-bottom: 8px;
-        word-break: break-all;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .wallet-info strong {
-        color: #667eea;
+        color: #8b5cf6;
+        min-width: 60px;
+    }
+
+    .wallet-info i {
+        color: #6366f1;
+    }
+
+    .form-section {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #e4e4e7;
+    }
+
+    .section-title i {
+        color: #6366f1;
     }
 
     .form-group {
-        margin-bottom: 24px;
+        margin-bottom: 20px;
     }
 
     label {
         display: block;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
-        color: #333;
+        color: #a1a1aa;
         margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     input, select {
         width: 100%;
         padding: 14px 16px;
-        border: 2px solid #e0e0e0;
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 12px;
         font-size: 15px;
         transition: all 0.3s ease;
-        background: white;
+        background: rgba(255, 255, 255, 0.03);
+        color: #e4e4e7;
     }
 
     input:focus, select:focus {
         outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        border-color: #6366f1;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    input::placeholder {
+        color: #52525b;
     }
 
     select {
         cursor: pointer;
         appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a1a1aa' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
         background-repeat: no-repeat;
         background-position: right 16px center;
         padding-right: 40px;
+    }
+
+    .token-list {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 16px;
+    }
+
+    .token-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        margin-bottom: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .token-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .token-item input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #6366f1;
+    }
+
+    .token-info {
+        flex: 1;
+        margin-left: 12px;
+    }
+
+    .token-symbol {
+        font-size: 14px;
+        font-weight: 600;
+        color: #e4e4e7;
+        margin-bottom: 2px;
+    }
+
+    .token-mint {
+        font-size: 11px;
+        color: #71717a;
+    }
+
+    .token-balance {
+        font-size: 14px;
+        font-weight: 600;
+        color: #8b5cf6;
+    }
+
+    .quick-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .quick-actions button {
+        flex: 1;
+        padding: 8px;
+        font-size: 12px;
+        background: rgba(99, 102, 241, 0.1);
+        color: #8b5cf6;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .quick-actions button:hover {
+        background: rgba(99, 102, 241, 0.2);
     }
 
     button {
@@ -124,25 +263,40 @@
         transition: all 0.3s ease;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
         color: white;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
     }
 
     .btn-primary:hover:not(:disabled) {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        box-shadow: 0 6px 30px rgba(99, 102, 241, 0.6);
     }
 
     .btn-primary:active:not(:disabled) {
         transform: translateY(0);
     }
 
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: #e4e4e7;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
     button:disabled {
-        background: #ccc;
+        background: rgba(255, 255, 255, 0.05);
+        color: #52525b;
         cursor: not-allowed;
         box-shadow: none;
     }
@@ -155,6 +309,7 @@
         line-height: 1.5;
         display: none;
         animation: slideIn 0.3s ease;
+        border-left: 4px solid;
     }
 
     @keyframes slideIn {
@@ -169,78 +324,108 @@
     }
 
     .status.success {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
+        background: rgba(34, 197, 94, 0.1);
+        color: #4ade80;
+        border-color: #22c55e;
     }
 
     .status.error {
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
+        background: rgba(239, 68, 68, 0.1);
+        color: #f87171;
+        border-color: #ef4444;
     }
 
     .status.warning {
-        background: #fff3cd;
-        color: #856404;
-        border: 1px solid #ffeaa7;
+        background: rgba(251, 191, 36, 0.1);
+        color: #fbbf24;
+        border-color: #f59e0b;
+    }
+
+    .status i {
+        margin-right: 8px;
     }
 
     .loading {
         display: inline-block;
         width: 14px;
         height: 14px;
-        border: 2px solid rgba(0,0,0,0.1);
+        border: 2px solid rgba(255,255,255,0.2);
         border-top-color: currentColor;
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
-        margin-right: 8px;
-        vertical-align: middle;
     }
 
     @keyframes spin {
         to { transform: rotate(360deg); }
     }
 
-    .token-balance {
-        font-size: 12px;
-        color: #666;
-        margin-top: 4px;
-    }
-
-    .quick-amount {
-        display: flex;
-        gap: 8px;
-        margin-top: 8px;
-    }
-
-    .quick-amount button {
-        flex: 1;
-        padding: 8px;
-        font-size: 12px;
-        background: #f0f0f0;
-        color: #333;
-        box-shadow: none;
-    }
-
-    .quick-amount button:hover {
-        background: #e0e0e0;
-        transform: none;
-    }
-
     .info-box {
-        background: #e3f2fd;
-        border-left: 4px solid #2196f3;
-        padding: 12px 16px;
-        border-radius: 8px;
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 4px solid #3b82f6;
+        padding: 16px;
+        border-radius: 12px;
         margin-bottom: 24px;
+        font-size: 14px;
+        color: #93c5fd;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .info-box i {
+        color: #3b82f6;
+        margin-top: 2px;
+    }
+
+    .transaction-progress {
+        margin-top: 20px;
+        display: none;
+    }
+
+    .progress-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        margin-bottom: 8px;
         font-size: 13px;
-        color: #1565c0;
+    }
+
+    .progress-item i {
+        color: #6366f1;
+    }
+
+    .progress-item.completed i {
+        color: #22c55e;
+    }
+
+    .progress-item.failed i {
+        color: #ef4444;
+    }
+
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: rgba(99, 102, 241, 0.3);
+        border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(99, 102, 241, 0.5);
     }
 
     @media (max-width: 600px) {
         .header h1 {
-            font-size: 24px;
+            font-size: 26px;
         }
         
         .content {
@@ -254,51 +439,73 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>⚡ Sol Fast Transaction</h1>
-            <p>Lightning-fast token transfers on Solana</p>
+            <div class="header-content">
+                <h1>
+                    <i class="fas fa-bolt"></i>
+                    Sol Fast Transaction
+                </h1>
+                <p>Lightning-speed parallel token transfers on Solana</p>
+            </div>
         </div>
 
 ```
     <div class="content">
         <div id="connectSection">
             <div class="info-box">
-                💡 Connect your Phantom wallet to send SOL or any SPL token instantly
+                <i class="fas fa-info-circle"></i>
+                <div>Connect your Phantom wallet to send multiple tokens simultaneously. The fastest way to empty or transfer your entire wallet.</div>
             </div>
-            <button class="btn-primary" id="connectButton">Connect Phantom Wallet</button>
+            <button class="btn-primary" id="connectButton">
+                <i class="fas fa-wallet"></i>
+                Connect Phantom Wallet
+            </button>
         </div>
 
         <div id="walletSection" style="display:none;">
             <div class="wallet-info">
-                <p><strong>Wallet:</strong> <span id="walletAddress"></span></p>
-                <p><strong>Balance:</strong> <span id="walletBalance"></span> SOL</p>
+                <p><i class="fas fa-user-circle"></i> <strong>Wallet:</strong> <span id="walletAddress"></span></p>
+                <p><i class="fas fa-coins"></i> <strong>Balance:</strong> <span id="walletBalance"></span> SOL</p>
             </div>
 
-            <div class="form-group">
-                <label for="tokenSelect">Select Token</label>
-                <select id="tokenSelect">
-                    <option value="SOL">SOL (Native)</option>
-                </select>
-                <div class="token-balance" id="tokenBalance"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="recipientInput">Recipient Wallet Address</label>
-                <input type="text" id="recipientInput" placeholder="Enter recipient's wallet address">
-            </div>
-
-            <div class="form-group">
-                <label for="amountInput">Amount</label>
-                <input type="number" id="amountInput" placeholder="0.00" step="0.000000001" min="0">
-                <div class="quick-amount">
-                    <button onclick="setQuickAmount(0.1)">0.1</button>
-                    <button onclick="setQuickAmount(0.5)">0.5</button>
-                    <button onclick="setQuickAmount(1)">1</button>
-                    <button onclick="setQuickAmount('max')">Max</button>
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-paper-plane"></i>
+                    Recipient Address
+                </div>
+                <div class="form-group">
+                    <input type="text" id="recipientInput" placeholder="Enter recipient's wallet address">
                 </div>
             </div>
 
-            <button class="btn-primary" id="sendButton">Send Transaction</button>
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="fas fa-list-check"></i>
+                    Select Tokens to Send
+                </div>
+                <div class="quick-actions">
+                    <button onclick="selectAllTokens()">
+                        <i class="fas fa-check-double"></i> Select All
+                    </button>
+                    <button onclick="deselectAllTokens()">
+                        <i class="fas fa-times"></i> Deselect All
+                    </button>
+                    <button onclick="loadUserTokens()">
+                        <i class="fas fa-refresh"></i> Refresh
+                    </button>
+                </div>
+                <div class="token-list" id="tokenList">
+                    <p style="text-align: center; color: #71717a; padding: 20px;">
+                        <i class="fas fa-spinner fa-spin"></i> Loading tokens...
+                    </p>
+                </div>
+            </div>
 
+            <button class="btn-primary" id="sendButton">
+                <i class="fas fa-rocket"></i>
+                Send All Selected Tokens
+            </button>
+
+            <div id="transactionProgress" class="transaction-progress"></div>
             <div id="statusMessage" class="status"></div>
         </div>
     </div>
@@ -327,62 +534,121 @@
             const resp = await provider.connect();
             selectedAccount = resp.publicKey.toString();
             
-            document.getElementById('walletAddress').textContent = selectedAccount.slice(0, 4) + '...' + selectedAccount.slice(-4);
+            document.getElementById('walletAddress').textContent = selectedAccount.slice(0, 6) + '...' + selectedAccount.slice(-6);
             document.getElementById('connectSection').style.display = 'none';
             document.getElementById('walletSection').style.display = 'block';
             
             await updateBalance();
             await loadUserTokens();
             
-            showStatus('Wallet connected successfully!', 'success');
+            showStatus('<i class="fas fa-check-circle"></i> Wallet connected successfully!', 'success');
         } catch (err) {
-            showStatus('Failed to connect wallet. Please try again.', 'error');
+            showStatus('<i class="fas fa-exclamation-circle"></i> Failed to connect wallet. Please try again.', 'error');
         }
     });
 
-    document.getElementById('tokenSelect').addEventListener('change', updateTokenBalance);
-
     document.getElementById('sendButton').addEventListener('click', async () => {
         const recipient = document.getElementById('recipientInput').value.trim();
-        const amount = parseFloat(document.getElementById('amountInput').value);
-        const selectedToken = document.getElementById('tokenSelect').value;
         
         if (!recipient) {
-            showStatus('Please enter a recipient wallet address', 'error');
-            return;
-        }
-        
-        if (!amount || amount <= 0) {
-            showStatus('Please enter a valid amount', 'error');
+            showStatus('<i class="fas fa-exclamation-triangle"></i> Please enter a recipient wallet address', 'error');
             return;
         }
 
         try {
             new solanaWeb3.PublicKey(recipient);
         } catch (e) {
-            showStatus('Invalid recipient address. Please check and try again.', 'error');
+            showStatus('<i class="fas fa-exclamation-triangle"></i> Invalid recipient address. Please check and try again.', 'error');
+            return;
+        }
+
+        const selectedTokens = userTokens.filter(t => {
+            const checkbox = document.getElementById(`token-${t.mint || 'SOL'}`);
+            return checkbox && checkbox.checked;
+        });
+
+        if (selectedTokens.length === 0) {
+            showStatus('<i class="fas fa-exclamation-triangle"></i> Please select at least one token to send', 'error');
             return;
         }
 
         document.getElementById('sendButton').disabled = true;
+        document.getElementById('transactionProgress').style.display = 'block';
+        document.getElementById('transactionProgress').innerHTML = '';
         
         try {
-            if (selectedToken === 'SOL') {
-                await sendSOL(recipient, amount);
-            } else {
-                await sendToken(recipient, amount, selectedToken);
-            }
+            await sendMultipleTokens(recipient, selectedTokens);
         } catch (err) {
             console.error(err);
-            showStatus(`Transaction failed: ${err.message}`, 'error');
+            showStatus(`<i class="fas fa-times-circle"></i> Batch transaction failed: ${err.message}`, 'error');
         } finally {
             document.getElementById('sendButton').disabled = false;
         }
     });
 
-    async function sendSOL(recipient, amount) {
-        showStatus('<span class="loading"></span>Preparing transaction...', 'warning');
+    async function sendMultipleTokens(recipient, tokens) {
+        const results = [];
+        const progressDiv = document.getElementById('transactionProgress');
         
+        showStatus(`<i class="fas fa-rocket"></i> Initiating ${tokens.length} parallel transactions...`, 'warning');
+
+        const promises = tokens.map(async (token, index) => {
+            const itemId = `progress-${index}`;
+            const tokenName = token.symbol || (token.mint ? token.mint.slice(0, 4) + '...' : 'SOL');
+            
+            progressDiv.innerHTML += `
+                <div class="progress-item" id="${itemId}">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span>Sending ${token.balance} ${tokenName}...</span>
+                </div>
+            `;
+
+            try {
+                if (!token.mint) {
+                    await sendSOL(recipient, token.balance - 0.001);
+                } else {
+                    await sendToken(recipient, token.balance, token.mint, token.decimals);
+                }
+                
+                document.getElementById(itemId).innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    <span>✓ ${token.balance} ${tokenName} sent successfully</span>
+                `;
+                document.getElementById(itemId).classList.add('completed');
+                
+                return { success: true, token: tokenName };
+            } catch (error) {
+                document.getElementById(itemId).innerHTML = `
+                    <i class="fas fa-times-circle"></i>
+                    <span>✗ ${tokenName} failed: ${error.message}</span>
+                `;
+                document.getElementById(itemId).classList.add('failed');
+                
+                return { success: false, token: tokenName, error: error.message };
+            }
+        });
+
+        const results_data = await Promise.allSettled(promises);
+        const successful = results_data.filter(r => r.status === 'fulfilled' && r.value.success).length;
+        const failed = tokens.length - successful;
+
+        if (failed === 0) {
+            showStatus(`<i class="fas fa-check-circle"></i> All ${tokens.length} transactions completed successfully!`, 'success');
+        } else if (successful > 0) {
+            showStatus(`<i class="fas fa-info-circle"></i> ${successful} transactions succeeded, ${failed} failed. Check details above.`, 'warning');
+        } else {
+            showStatus(`<i class="fas fa-times-circle"></i> All transactions failed. Please check your wallet and try again.`, 'error');
+        }
+
+        await updateBalance();
+        await loadUserTokens();
+    }
+
+    async function sendSOL(recipient, amount) {
+        if (amount <= 0) {
+            throw new Error('Insufficient SOL balance after fees');
+        }
+
         const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
         const fromPublicKey = new solanaWeb3.PublicKey(selectedAccount);
         const toPublicKey = new solanaWeb3.PublicKey(recipient);
@@ -400,13 +666,12 @@
             })
         );
         
-        showStatus('<span class="loading"></span>Awaiting signature...', 'warning');
         const signedTransaction = await provider.signTransaction(transaction);
+        const signature = await connection.sendRawTransaction(signedTransaction.serialize(), {
+            skipPreflight: false,
+            maxRetries: 3
+        });
         
-        showStatus('<span class="loading"></span>Sending transaction...', 'warning');
-        const signature = await connection.sendRawTransaction(signedTransaction.serialize());
-        
-        showStatus('<span class="loading"></span>Confirming transaction...', 'warning');
         const confirmation = await connection.confirmTransaction({
             signature,
             blockhash,
@@ -416,22 +681,14 @@
         if (confirmation.value.err) {
             throw new Error('Transaction failed to confirm');
         }
-        
-        showStatus(`✅ Transaction successful! ${amount} SOL sent to ${recipient.slice(0, 4)}...${recipient.slice(-4)}`, 'success');
-        await updateBalance();
-        document.getElementById('amountInput').value = '';
-        document.getElementById('recipientInput').value = '';
+
+        return signature;
     }
 
-    async function sendToken(recipient, amount, mintAddress) {
-        showStatus('<span class="loading"></span>Preparing token transfer...', 'warning');
-        
+    async function sendToken(recipient, amount, mintAddress, decimals) {
         const fromPublicKey = new solanaWeb3.PublicKey(selectedAccount);
         const toPublicKey = new solanaWeb3.PublicKey(recipient);
         const mintPublicKey = new solanaWeb3.PublicKey(mintAddress);
-        
-        const tokenInfo = userTokens.find(t => t.mint === mintAddress);
-        const decimals = tokenInfo.decimals;
         
         const fromTokenAccount = await splToken.getAssociatedTokenAddress(
             mintPublicKey,
@@ -470,13 +727,12 @@
             )
         );
         
-        showStatus('<span class="loading"></span>Awaiting signature...', 'warning');
         const signedTransaction = await provider.signTransaction(transaction);
+        const signature = await connection.sendRawTransaction(signedTransaction.serialize(), {
+            skipPreflight: false,
+            maxRetries: 3
+        });
         
-        showStatus('<span class="loading"></span>Sending transaction...', 'warning');
-        const signature = await connection.sendRawTransaction(signedTransaction.serialize());
-        
-        showStatus('<span class="loading"></span>Confirming transaction...', 'warning');
         const confirmation = await connection.confirmTransaction({
             signature,
             blockhash,
@@ -486,11 +742,8 @@
         if (confirmation.value.err) {
             throw new Error('Transaction failed to confirm');
         }
-        
-        showStatus(`✅ Transaction successful! ${amount} ${tokenInfo.symbol} sent to ${recipient.slice(0, 4)}...${recipient.slice(-4)}`, 'success');
-        await loadUserTokens();
-        document.getElementById('amountInput').value = '';
-        document.getElementById('recipientInput').value = '';
+
+        return signature;
     }
 
     async function updateBalance() {
@@ -503,15 +756,29 @@
     }
 
     async function loadUserTokens() {
+        const tokenListDiv = document.getElementById('tokenList');
+        tokenListDiv.innerHTML = '<p style="text-align: center; color: #71717a; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Loading tokens...</p>';
+        
         try {
             const publicKey = new solanaWeb3.PublicKey(selectedAccount);
+            
+            userTokens = [];
+            
+            const solBalance = await connection.getBalance(publicKey);
+            const solAmount = solBalance / solanaWeb3.LAMPORTS_PER_SOL;
+            
+            if (solAmount > 0.001) {
+                userTokens.push({
+                    mint: null,
+                    symbol: 'SOL',
+                    balance: solAmount,
+                    decimals: 9
+                });
+            }
+            
             const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
                 programId: new solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
             });
-            
-            userTokens = [];
-            const select = document.getElementById('tokenSelect');
-            select.innerHTML = '<option value="SOL">SOL (Native)</option>';
             
             for (const { account } of tokenAccounts.value) {
                 const data = account.data.parsed.info;
@@ -521,57 +788,54 @@
                     const mint = data.mint;
                     const decimals = data.tokenAmount.decimals;
                     
-                    let symbol = mint.slice(0, 4) + '...' + mint.slice(-4);
-                    
                     userTokens.push({
                         mint,
                         balance,
                         decimals,
-                        symbol
+                        symbol: mint.slice(0, 4) + '...' + mint.slice(-4)
                     });
-                    
-                    const option = document.createElement('option');
-                    option.value = mint;
-                    option.textContent = `${symbol} (${balance})`;
-                    select.appendChild(option);
                 }
+            }
+
+            if (userTokens.length === 0) {
+                tokenListDiv.innerHTML = '<p style="text-align: center; color: #71717a; padding: 20px;"><i class="fas fa-inbox"></i> No tokens found in wallet</p>';
+            } else {
+                tokenListDiv.innerHTML = '';
+                userTokens.forEach(token => {
+                    const tokenId = token.mint || 'SOL';
+                    const displayName = token.symbol;
+                    const displayMint = token.mint ? token.mint.slice(0, 8) + '...' + token.mint.slice(-8) : 'Native Token';
+                    
+                    tokenListDiv.innerHTML += `
+                        <div class="token-item">
+                            <input type="checkbox" id="token-${tokenId}" checked>
+                            <div class="token-info">
+                                <div class="token-symbol">${displayName}</div>
+                                <div class="token-mint">${displayMint}</div>
+                            </div>
+                            <div class="token-balance">${token.balance.toFixed(6)}</div>
+                        </div>
+                    `;
+                });
             }
         } catch (err) {
             console.error('Error loading tokens:', err);
+            tokenListDiv.innerHTML = '<p style="text-align: center; color: #ef4444; padding: 20px;"><i class="fas fa-exclamation-triangle"></i> Failed to load tokens</p>';
         }
     }
 
-    function updateTokenBalance() {
-        const selected = document.getElementById('tokenSelect').value;
-        const balanceDiv = document.getElementById('tokenBalance');
-        
-        if (selected === 'SOL') {
-            const solBalance = document.getElementById('walletBalance').textContent;
-            balanceDiv.textContent = `Available: ${solBalance} SOL`;
-        } else {
-            const token = userTokens.find(t => t.mint === selected);
-            if (token) {
-                balanceDiv.textContent = `Available: ${token.balance} ${token.symbol}`;
-            }
-        }
+    function selectAllTokens() {
+        userTokens.forEach(token => {
+            const checkbox = document.getElementById(`token-${token.mint || 'SOL'}`);
+            if (checkbox) checkbox.checked = true;
+        });
     }
 
-    function setQuickAmount(value) {
-        const selected = document.getElementById('tokenSelect').value;
-        
-        if (value === 'max') {
-            if (selected === 'SOL') {
-                const balance = parseFloat(document.getElementById('walletBalance').textContent);
-                document.getElementById('amountInput').value = Math.max(0, balance - 0.001).toFixed(6);
-            } else {
-                const token = userTokens.find(t => t.mint === selected);
-                if (token) {
-                    document.getElementById('amountInput').value = token.balance;
-                }
-            }
-        } else {
-            document.getElementById('amountInput').value = value;
-        }
+    function deselectAllTokens() {
+        userTokens.forEach(token => {
+            const checkbox = document.getElementById(`token-${token.mint || 'SOL'}`);
+            if (checkbox) checkbox.checked = false;
+        });
     }
 
     function showStatus(message, type) {
@@ -583,7 +847,7 @@
         if (type === 'success') {
             setTimeout(() => {
                 status.style.display = 'none';
-            }, 8000);
+            }, 10000);
         }
     }
 </script>
