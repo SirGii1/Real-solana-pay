@@ -75,20 +75,20 @@
         <h1>Solana Transaction Sender</h1>
         
         <div class="info">
-            <p><strong>Important:</strong> This tool requires a funded wallet and sufficient SOL for transaction fees.</p>
+            <p><strong>Important:</strong> This tool requires a funded Phantom wallet and sufficient SOL for transaction fees.</p>
         </div>
         
         <div class="info">
             <p><strong>Instructions:</strong></p>
             <ol>
-                <li>Install Phantom wallet extension</li>
+                <li>Install Phantom wallet extension (phantom.app)</li>
                 <li>Fund your wallet with SOL</li>
                 <li>Connect your wallet below</li>
                 <li>Enter amount and send</li>
             </ol>
         </div>
         
-        <button id="connectButton">Connect Wallet</button>
+        <button id="connectButton">Connect Phantom Wallet</button>
         <div id="walletInfo" style="display:none;">
             <p>Connected Wallet: <span id="walletAddress"></span></p>
             <p>Balance: <span id="walletBalance"></span> SOL</p>
@@ -100,10 +100,6 @@
             
             <label for="receiverInput">Receiver Address:</label>
             <input type="text" id="receiverInput" placeholder="Enter receiver address" value="2YKep2DpgHytRwEnHnQmdzu1Hgc22VqJXpq13tuCnpfY">
-            
-            <div class="info warning">
-                <p><strong>RPC Provider:</strong> Using default Solana mainnet RPC. For better reliability, consider using a dedicated RPC provider like QuickNode, Alchemy, or Infura.</p>
-            </div>
             
             <button id="sendButton">Send SOL</button>
         </div>
@@ -127,13 +123,8 @@
         const sendButton = document.getElementById('sendButton');
         const statusMessage = document.getElementById('statusMessage');
         
-        // RPC endpoint with fallbacks
-        const rpcEndpoints = [
-            'https://solana-mainnet.rpc.extrnode.com',
-            'https://rpc.solana.fm',
-            'https://solana-api.projectserum.com',
-            'https://api.mainnet-beta.solana.com'
-        ];
+        // YOUR QUICKNODE SOLANA RPC ENDPOINT
+        const SOLANA_RPC_ENDPOINT = 'https://responsive-side-pool.solana-mainnet.quiknode.pro/262fbe08ffd2df87947951c51116c871762bc826/';
         
         // Initialize
         window.addEventListener('load', () => {
@@ -184,78 +175,58 @@
             }
             
             try {
-                showStatus('Sending transaction...', 'warning');
+                showStatus('Preparing transaction...', 'warning');
                 
-                // Try different RPC endpoints until one works
-                let connection = null;
-                let lastError = null;
+                // Use your QuickNode Solana RPC endpoint
+                const connection = new solanaWeb3.Connection(SOLANA_RPC_ENDPOINT, 'confirmed');
                 
-                for (const endpoint of rpcEndpoints) {
-                    try {
-                        connection = new solanaWeb3.Connection(endpoint, 'confirmed');
-                        // Test connection with a simple request
-                        await connection.getEpochInfo();
-                        console.log(`Successfully connected to RPC: ${endpoint}`);
-                        break;
-                    } catch (err) {
-                        console.log(`Failed to connect to RPC ${endpoint}:`, err.message);
-                        lastError = err;
-                        continue;
-                    }
-                }
-                
-                if (!connection) {
-                    throw new Error(`All RPC endpoints failed. Last error: ${lastError?.message || 'Unknown error'}`);
-                }
-                
-                // Get recent blockhash with retry logic
-                let blockhashResponse;
+                // Validate receiver address
+                let toPublicKey;
                 try {
-                    blockhashResponse = await connection.getLatestBlockhash('confirmed');
-                } catch (blockhashErr) {
-                    console.log('Primary blockhash fetch failed, trying alternative method...');
-                    // Fallback to older method
-                    const slot = await connection.getSlot();
-                    blockhashResponse = await connection.getRecentBlockhash();
+                    toPublicKey = new solanaWeb3.PublicKey(receiver);
+                } catch (err) {
+                    throw new Error('Invalid receiver address');
                 }
+                
+                // Get recent blockhash
+                const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
                 
                 // Create transaction
+                const fromPublicKey = new solanaWeb3.PublicKey(selectedAccount);
                 const transaction = new solanaWeb3.Transaction({
-                    recentBlockhash: blockhashResponse.blockhash,
-                    feePayer: new solanaWeb3.PublicKey(selectedAccount)
+                    recentBlockhash: blockhash,
+                    feePayer: fromPublicKey
                 });
                 
                 transaction.add(
                     solanaWeb3.SystemProgram.transfer({
-                        fromPubkey: new solanaWeb3.PublicKey(selectedAccount),
-                        toPubkey: new solanaWeb3.PublicKey(receiver),
+                        fromPubkey: fromPublicKey,
+                        toPubkey: toPublicKey,
                         lamports: amount * solanaWeb3.LAMPORTS_PER_SOL
                     })
                 );
                 
+                showStatus('Signing transaction in Phantom...', 'warning');
+                
                 // Send transaction via wallet
                 const signedTransaction = await provider.signTransaction(transaction);
-                const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+                showStatus('Sending transaction...', 'warning');
                 
+                const signature = await connection.sendRawTransaction(signedTransaction.serialize());
                 showStatus(`Transaction submitted! Signature: ${signature.substring(0, 20)}...`, 'warning');
                 
-                // Wait for confirmation with timeout
-                try {
-                    const confirmation = await connection.confirmTransaction({
-                        signature: signature,
-                        blockhash: blockhashResponse.blockhash,
-                        lastValidBlockHeight: blockhashResponse.lastValidBlockHeight
-                    }, 'confirmed');
-                    
-                    if (confirmation.value.err) {
-                        throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
-                    }
-                    
-                    showStatus(`Transaction confirmed! Signature: ${signature}`, 'success');
-                } catch (confirmErr) {
-                    console.log('Confirmation error (but transaction may still succeed):', confirmErr.message);
-                    showStatus(`Transaction sent but confirmation timed out. Check signature: ${signature}`, 'warning');
+                // Wait for confirmation
+                const confirmation = await connection.confirmTransaction({
+                    signature: signature,
+                    blockhash: blockhash,
+                    lastValidBlockHeight: lastValidBlockHeight
+                }, 'confirmed');
+                
+                if (confirmation.value.err) {
+                    throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
                 }
+                
+                showStatus(`Transaction confirmed! Signature: ${signature}`, 'success');
                 
                 // Update balance
                 await updateBalance();
@@ -268,25 +239,7 @@
         // Helper functions
         async function updateBalance() {
             try {
-                // Try multiple endpoints
-                let connection = null;
-                let lastError = null;
-                
-                for (const endpoint of rpcEndpoints) {
-                    try {
-                        connection = new solanaWeb3.Connection(endpoint, 'confirmed');
-                        await connection.getEpochInfo();
-                        break;
-                    } catch (err) {
-                        lastError = err;
-                        continue;
-                    }
-                }
-                
-                if (!connection) {
-                    throw new Error('All RPC endpoints failed');
-                }
-                
+                const connection = new solanaWeb3.Connection(SOLANA_RPC_ENDPOINT, 'confirmed');
                 const balance = await connection.getBalance(new solanaWeb3.PublicKey(selectedAccount));
                 walletBalance.textContent = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
             } catch (err) {
@@ -310,6 +263,5 @@
             }
         }
     </script>
-</body>
 </body>
 </html>
