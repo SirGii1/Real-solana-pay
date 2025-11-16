@@ -1,267 +1,593 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solana Transaction Sender</title>
+    <title>Sol Fast Transaction</title>
     <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="https://unpkg.com/@solana/spl-token@latest/lib/index.iife.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        button {
-            background-color: #007acc;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px 0;
-            width: 100%;
-        }
-        button:hover {
-            background-color: #005fa3;
-        }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+        * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
         }
-        .info {
-            background-color: #e3f2fd;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 15px 0;
+
+```
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        max-width: 500px;
+        width: 100%;
+        border-radius: 24px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+    }
+
+    .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 32px;
+        text-align: center;
+        color: white;
+    }
+
+    .header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+
+    .header p {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    .content {
+        padding: 32px;
+    }
+
+    .wallet-info {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 20px;
+        border-radius: 16px;
+        margin-bottom: 24px;
+    }
+
+    .wallet-info p {
+        font-size: 13px;
+        color: #333;
+        margin-bottom: 8px;
+        word-break: break-all;
+    }
+
+    .wallet-info strong {
+        color: #667eea;
+    }
+
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    input, select {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    input:focus, select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+
+    select {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        padding-right: 40px;
+    }
+
+    button {
+        width: 100%;
+        padding: 16px;
+        border: none;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .btn-primary:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .status {
+        padding: 16px;
+        border-radius: 12px;
+        margin-top: 20px;
+        font-size: 14px;
+        line-height: 1.5;
+        display: none;
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
         }
-        .status {
-            margin: 15px 0;
-            padding: 10px;
-            border-radius: 5px;
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
-        .success {
-            background-color: #c8e6c9;
-            color: #388e3c;
+    }
+
+    .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .status.warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
+
+    .loading {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        border: 2px solid rgba(0,0,0,0.1);
+        border-top-color: currentColor;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-right: 8px;
+        vertical-align: middle;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .token-balance {
+        font-size: 12px;
+        color: #666;
+        margin-top: 4px;
+    }
+
+    .quick-amount {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+    }
+
+    .quick-amount button {
+        flex: 1;
+        padding: 8px;
+        font-size: 12px;
+        background: #f0f0f0;
+        color: #333;
+        box-shadow: none;
+    }
+
+    .quick-amount button:hover {
+        background: #e0e0e0;
+        transform: none;
+    }
+
+    .info-box {
+        background: #e3f2fd;
+        border-left: 4px solid #2196f3;
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+        font-size: 13px;
+        color: #1565c0;
+    }
+
+    @media (max-width: 600px) {
+        .header h1 {
+            font-size: 24px;
         }
-        .error {
-            background-color: #ffcdd2;
-            color: #c62828;
+        
+        .content {
+            padding: 24px;
         }
-        .warning {
-            background-color: #fff3e0;
-            color: #f57c00;
-        }
-    </style>
+    }
+</style>
+```
+
 </head>
 <body>
     <div class="container">
-        <h1>Solana Transaction Sender</h1>
-        
-        <div class="info">
-            <p><strong>Important:</strong> This tool requires a funded Phantom wallet and sufficient SOL for transaction fees.</p>
+        <div class="header">
+            <h1>⚡ Sol Fast Transaction</h1>
+            <p>Lightning-fast token transfers on Solana</p>
         </div>
-        
-        <div class="info">
-            <p><strong>Instructions:</strong></p>
-            <ol>
-                <li>Install Phantom wallet extension (phantom.app)</li>
-                <li>Fund your wallet with SOL</li>
-                <li>Connect your wallet below</li>
-                <li>Enter amount and send</li>
-            </ol>
-        </div>
-        
-        <button id="connectButton">Connect Phantom Wallet</button>
-        <div id="walletInfo" style="display:none;">
-            <p>Connected Wallet: <span id="walletAddress"></span></p>
-            <p>Balance: <span id="walletBalance"></span> SOL</p>
-        </div>
-        
-        <div id="transactionSection" style="display:none;">
-            <label for="amountInput">Amount (SOL):</label>
-            <input type="number" id="amountInput" placeholder="Enter amount" step="0.000000001" min="0" value="0.01">
-            
-            <label for="receiverInput">Receiver Address:</label>
-            <input type="text" id="receiverInput" placeholder="Enter receiver address" value="2YKep2DpgHytRwEnHnQmdzu1Hgc22VqJXpq13tuCnpfY">
-            
-            <button id="sendButton">Send SOL</button>
-        </div>
-        
-        <div id="statusMessage"></div>
-    </div>
 
-    <script>
-        // Global variables
-        let provider = null;
-        let selectedAccount = null;
+```
+    <div class="content">
+        <div id="connectSection">
+            <div class="info-box">
+                💡 Connect your Phantom wallet to send SOL or any SPL token instantly
+            </div>
+            <button class="btn-primary" id="connectButton">Connect Phantom Wallet</button>
+        </div>
+
+        <div id="walletSection" style="display:none;">
+            <div class="wallet-info">
+                <p><strong>Wallet:</strong> <span id="walletAddress"></span></p>
+                <p><strong>Balance:</strong> <span id="walletBalance"></span> SOL</p>
+            </div>
+
+            <div class="form-group">
+                <label for="tokenSelect">Select Token</label>
+                <select id="tokenSelect">
+                    <option value="SOL">SOL (Native)</option>
+                </select>
+                <div class="token-balance" id="tokenBalance"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="recipientInput">Recipient Wallet Address</label>
+                <input type="text" id="recipientInput" placeholder="Enter recipient's wallet address">
+            </div>
+
+            <div class="form-group">
+                <label for="amountInput">Amount</label>
+                <input type="number" id="amountInput" placeholder="0.00" step="0.000000001" min="0">
+                <div class="quick-amount">
+                    <button onclick="setQuickAmount(0.1)">0.1</button>
+                    <button onclick="setQuickAmount(0.5)">0.5</button>
+                    <button onclick="setQuickAmount(1)">1</button>
+                    <button onclick="setQuickAmount('max')">Max</button>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="sendButton">Send Transaction</button>
+
+            <div id="statusMessage" class="status"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let provider = null;
+    let selectedAccount = null;
+    let connection = null;
+    let userTokens = [];
+    
+    const SOLANA_RPC = 'https://responsive-side-pool.solana-mainnet.quiknode.pro/262fbe08ffd2df87947951c51116c871762bc826/';
+
+    window.addEventListener('load', () => {
+        if (window.solana && window.solana.isPhantom) {
+            provider = window.solana;
+            connection = new solanaWeb3.Connection(SOLANA_RPC, 'confirmed');
+        } else {
+            showStatus('Phantom wallet not found. Please install it from phantom.app', 'error');
+            document.getElementById('connectButton').disabled = true;
+        }
+    });
+
+    document.getElementById('connectButton').addEventListener('click', async () => {
+        try {
+            const resp = await provider.connect();
+            selectedAccount = resp.publicKey.toString();
+            
+            document.getElementById('walletAddress').textContent = selectedAccount.slice(0, 4) + '...' + selectedAccount.slice(-4);
+            document.getElementById('connectSection').style.display = 'none';
+            document.getElementById('walletSection').style.display = 'block';
+            
+            await updateBalance();
+            await loadUserTokens();
+            
+            showStatus('Wallet connected successfully!', 'success');
+        } catch (err) {
+            showStatus('Failed to connect wallet. Please try again.', 'error');
+        }
+    });
+
+    document.getElementById('tokenSelect').addEventListener('change', updateTokenBalance);
+
+    document.getElementById('sendButton').addEventListener('click', async () => {
+        const recipient = document.getElementById('recipientInput').value.trim();
+        const amount = parseFloat(document.getElementById('amountInput').value);
+        const selectedToken = document.getElementById('tokenSelect').value;
         
-        // DOM elements
-        const connectButton = document.getElementById('connectButton');
-        const walletInfo = document.getElementById('walletInfo');
-        const walletAddress = document.getElementById('walletAddress');
-        const walletBalance = document.getElementById('walletBalance');
-        const transactionSection = document.getElementById('transactionSection');
-        const amountInput = document.getElementById('amountInput');
-        const receiverInput = document.getElementById('receiverInput');
-        const sendButton = document.getElementById('sendButton');
-        const statusMessage = document.getElementById('statusMessage');
+        if (!recipient) {
+            showStatus('Please enter a recipient wallet address', 'error');
+            return;
+        }
         
-        // YOUR QUICKNODE SOLANA RPC ENDPOINT
-        const SOLANA_RPC_ENDPOINT = 'https://responsive-side-pool.solana-mainnet.quiknode.pro/262fbe08ffd2df87947951c51116c871762bc826/';
+        if (!amount || amount <= 0) {
+            showStatus('Please enter a valid amount', 'error');
+            return;
+        }
+
+        try {
+            new solanaWeb3.PublicKey(recipient);
+        } catch (e) {
+            showStatus('Invalid recipient address. Please check and try again.', 'error');
+            return;
+        }
+
+        document.getElementById('sendButton').disabled = true;
         
-        // Initialize
-        window.addEventListener('load', () => {
-            // Check if Phantom wallet is installed
-            if (window.solana && window.solana.isPhantom) {
-                provider = window.solana;
+        try {
+            if (selectedToken === 'SOL') {
+                await sendSOL(recipient, amount);
             } else {
-                showStatus('Please install Phantom wallet extension from phantom.app', 'error');
-                connectButton.disabled = true;
+                await sendToken(recipient, amount, selectedToken);
             }
+        } catch (err) {
+            console.error(err);
+            showStatus(`Transaction failed: ${err.message}`, 'error');
+        } finally {
+            document.getElementById('sendButton').disabled = false;
+        }
+    });
+
+    async function sendSOL(recipient, amount) {
+        showStatus('<span class="loading"></span>Preparing transaction...', 'warning');
+        
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+        const fromPublicKey = new solanaWeb3.PublicKey(selectedAccount);
+        const toPublicKey = new solanaWeb3.PublicKey(recipient);
+        
+        const transaction = new solanaWeb3.Transaction({
+            recentBlockhash: blockhash,
+            feePayer: fromPublicKey
         });
         
-        // Connect wallet
-        connectButton.addEventListener('click', async () => {
-            try {
-                const resp = await provider.connect();
-                selectedAccount = resp.publicKey.toString();
-                
-                // Update UI
-                walletAddress.textContent = selectedAccount;
-                connectButton.style.display = 'none';
-                walletInfo.style.display = 'block';
-                transactionSection.style.display = 'block';
-                
-                // Get balance
-                await updateBalance();
-                
-                showStatus('Wallet connected successfully!', 'success');
-            } catch (err) {
-                console.error(err);
-                showStatus('Failed to connect wallet: ' + err.message, 'error');
-            }
-        });
+        transaction.add(
+            solanaWeb3.SystemProgram.transfer({
+                fromPubkey: fromPublicKey,
+                toPubkey: toPublicKey,
+                lamports: Math.floor(amount * solanaWeb3.LAMPORTS_PER_SOL)
+            })
+        );
         
-        // Send SOL
-        sendButton.addEventListener('click', async () => {
-            const amount = parseFloat(amountInput.value);
-            const receiver = receiverInput.value.trim();
-            
-            if (!amount || amount <= 0) {
-                showStatus('Please enter a valid amount', 'error');
-                return;
-            }
-            
-            if (!receiver) {
-                showStatus('Please enter a receiver address', 'error');
-                return;
-            }
-            
-            try {
-                showStatus('Preparing transaction...', 'warning');
-                
-                // Use your QuickNode Solana RPC endpoint
-                const connection = new solanaWeb3.Connection(SOLANA_RPC_ENDPOINT, 'confirmed');
-                
-                // Validate receiver address
-                let toPublicKey;
-                try {
-                    toPublicKey = new solanaWeb3.PublicKey(receiver);
-                } catch (err) {
-                    throw new Error('Invalid receiver address');
-                }
-                
-                // Get recent blockhash
-                const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
-                
-                // Create transaction
-                const fromPublicKey = new solanaWeb3.PublicKey(selectedAccount);
-                const transaction = new solanaWeb3.Transaction({
-                    recentBlockhash: blockhash,
-                    feePayer: fromPublicKey
-                });
-                
-                transaction.add(
-                    solanaWeb3.SystemProgram.transfer({
-                        fromPubkey: fromPublicKey,
-                        toPubkey: toPublicKey,
-                        lamports: amount * solanaWeb3.LAMPORTS_PER_SOL
-                    })
-                );
-                
-                showStatus('Signing transaction in Phantom...', 'warning');
-                
-                // Send transaction via wallet
-                const signedTransaction = await provider.signTransaction(transaction);
-                showStatus('Sending transaction...', 'warning');
-                
-                const signature = await connection.sendRawTransaction(signedTransaction.serialize());
-                showStatus(`Transaction submitted! Signature: ${signature.substring(0, 20)}...`, 'warning');
-                
-                // Wait for confirmation
-                const confirmation = await connection.confirmTransaction({
-                    signature: signature,
-                    blockhash: blockhash,
-                    lastValidBlockHeight: lastValidBlockHeight
-                }, 'confirmed');
-                
-                if (confirmation.value.err) {
-                    throw new Error(`Transaction failed: ${JSON.stringify(confirmation.value.err)}`);
-                }
-                
-                showStatus(`Transaction confirmed! Signature: ${signature}`, 'success');
-                
-                // Update balance
-                await updateBalance();
-            } catch (err) {
-                console.error('Transaction error:', err);
-                showStatus(`Transaction failed: ${err.message}`, 'error');
-            }
-        });
+        showStatus('<span class="loading"></span>Awaiting signature...', 'warning');
+        const signedTransaction = await provider.signTransaction(transaction);
         
-        // Helper functions
-        async function updateBalance() {
-            try {
-                const connection = new solanaWeb3.Connection(SOLANA_RPC_ENDPOINT, 'confirmed');
-                const balance = await connection.getBalance(new solanaWeb3.PublicKey(selectedAccount));
-                walletBalance.textContent = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
-            } catch (err) {
-                console.error('Balance error:', err);
-                walletBalance.textContent = 'Error fetching balance';
-            }
+        showStatus('<span class="loading"></span>Sending transaction...', 'warning');
+        const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+        
+        showStatus('<span class="loading"></span>Confirming transaction...', 'warning');
+        const confirmation = await connection.confirmTransaction({
+            signature,
+            blockhash,
+            lastValidBlockHeight
+        }, 'confirmed');
+        
+        if (confirmation.value.err) {
+            throw new Error('Transaction failed to confirm');
         }
         
-        function showStatus(message, type) {
-            statusMessage.textContent = message;
-            statusMessage.className = 'status ' + type;
-            statusMessage.style.display = 'block';
+        showStatus(`✅ Transaction successful! ${amount} SOL sent to ${recipient.slice(0, 4)}...${recipient.slice(-4)}`, 'success');
+        await updateBalance();
+        document.getElementById('amountInput').value = '';
+        document.getElementById('recipientInput').value = '';
+    }
+
+    async function sendToken(recipient, amount, mintAddress) {
+        showStatus('<span class="loading"></span>Preparing token transfer...', 'warning');
+        
+        const fromPublicKey = new solanaWeb3.PublicKey(selectedAccount);
+        const toPublicKey = new solanaWeb3.PublicKey(recipient);
+        const mintPublicKey = new solanaWeb3.PublicKey(mintAddress);
+        
+        const tokenInfo = userTokens.find(t => t.mint === mintAddress);
+        const decimals = tokenInfo.decimals;
+        
+        const fromTokenAccount = await splToken.getAssociatedTokenAddress(
+            mintPublicKey,
+            fromPublicKey
+        );
+        
+        const toTokenAccount = await splToken.getAssociatedTokenAddress(
+            mintPublicKey,
+            toPublicKey
+        );
+        
+        const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed');
+        const transaction = new solanaWeb3.Transaction({
+            recentBlockhash: blockhash,
+            feePayer: fromPublicKey
+        });
+        
+        const toAccountInfo = await connection.getAccountInfo(toTokenAccount);
+        if (!toAccountInfo) {
+            transaction.add(
+                splToken.createAssociatedTokenAccountInstruction(
+                    fromPublicKey,
+                    toTokenAccount,
+                    toPublicKey,
+                    mintPublicKey
+                )
+            );
+        }
+        
+        transaction.add(
+            splToken.createTransferInstruction(
+                fromTokenAccount,
+                toTokenAccount,
+                fromPublicKey,
+                Math.floor(amount * Math.pow(10, decimals))
+            )
+        );
+        
+        showStatus('<span class="loading"></span>Awaiting signature...', 'warning');
+        const signedTransaction = await provider.signTransaction(transaction);
+        
+        showStatus('<span class="loading"></span>Sending transaction...', 'warning');
+        const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+        
+        showStatus('<span class="loading"></span>Confirming transaction...', 'warning');
+        const confirmation = await connection.confirmTransaction({
+            signature,
+            blockhash,
+            lastValidBlockHeight
+        }, 'confirmed');
+        
+        if (confirmation.value.err) {
+            throw new Error('Transaction failed to confirm');
+        }
+        
+        showStatus(`✅ Transaction successful! ${amount} ${tokenInfo.symbol} sent to ${recipient.slice(0, 4)}...${recipient.slice(-4)}`, 'success');
+        await loadUserTokens();
+        document.getElementById('amountInput').value = '';
+        document.getElementById('recipientInput').value = '';
+    }
+
+    async function updateBalance() {
+        try {
+            const balance = await connection.getBalance(new solanaWeb3.PublicKey(selectedAccount));
+            document.getElementById('walletBalance').textContent = (balance / solanaWeb3.LAMPORTS_PER_SOL).toFixed(4);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async function loadUserTokens() {
+        try {
+            const publicKey = new solanaWeb3.PublicKey(selectedAccount);
+            const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
+                programId: new solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
+            });
             
-            // Auto-hide success/warning messages after 10 seconds
-            if (type === 'success' || type === 'warning') {
-                setTimeout(() => {
-                    if (statusMessage.textContent === message) {
-                        statusMessage.style.display = 'none';
-                    }
-                }, 10000);
+            userTokens = [];
+            const select = document.getElementById('tokenSelect');
+            select.innerHTML = '<option value="SOL">SOL (Native)</option>';
+            
+            for (const { account } of tokenAccounts.value) {
+                const data = account.data.parsed.info;
+                const balance = data.tokenAmount.uiAmount;
+                
+                if (balance > 0) {
+                    const mint = data.mint;
+                    const decimals = data.tokenAmount.decimals;
+                    
+                    let symbol = mint.slice(0, 4) + '...' + mint.slice(-4);
+                    
+                    userTokens.push({
+                        mint,
+                        balance,
+                        decimals,
+                        symbol
+                    });
+                    
+                    const option = document.createElement('option');
+                    option.value = mint;
+                    option.textContent = `${symbol} (${balance})`;
+                    select.appendChild(option);
+                }
+            }
+        } catch (err) {
+            console.error('Error loading tokens:', err);
+        }
+    }
+
+    function updateTokenBalance() {
+        const selected = document.getElementById('tokenSelect').value;
+        const balanceDiv = document.getElementById('tokenBalance');
+        
+        if (selected === 'SOL') {
+            const solBalance = document.getElementById('walletBalance').textContent;
+            balanceDiv.textContent = `Available: ${solBalance} SOL`;
+        } else {
+            const token = userTokens.find(t => t.mint === selected);
+            if (token) {
+                balanceDiv.textContent = `Available: ${token.balance} ${token.symbol}`;
             }
         }
-    </script>
+    }
+
+    function setQuickAmount(value) {
+        const selected = document.getElementById('tokenSelect').value;
+        
+        if (value === 'max') {
+            if (selected === 'SOL') {
+                const balance = parseFloat(document.getElementById('walletBalance').textContent);
+                document.getElementById('amountInput').value = Math.max(0, balance - 0.001).toFixed(6);
+            } else {
+                const token = userTokens.find(t => t.mint === selected);
+                if (token) {
+                    document.getElementById('amountInput').value = token.balance;
+                }
+            }
+        } else {
+            document.getElementById('amountInput').value = value;
+        }
+    }
+
+    function showStatus(message, type) {
+        const status = document.getElementById('statusMessage');
+        status.innerHTML = message;
+        status.className = 'status ' + type;
+        status.style.display = 'block';
+        
+        if (type === 'success') {
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 8000);
+        }
+    }
+</script>
+```
+
 </body>
 </html>
